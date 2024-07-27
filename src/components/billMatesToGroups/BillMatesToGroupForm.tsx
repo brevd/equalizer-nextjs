@@ -22,7 +22,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { type BillMatesToGroup, insertBillMatesToGroupParams } from "@/lib/db/schema/billMatesToGroups";
+import {
+  type BillMatesToGroup,
+  insertBillMatesToGroupParams,
+} from "@/lib/db/schema/billMatesToGroups";
 import {
   createBillMatesToGroupAction,
   deleteBillMatesToGroupAction,
@@ -44,9 +47,9 @@ const BillMatesToGroupForm = ({
 }: {
   billMatesToGroup?: BillMatesToGroup | null;
   billGroups: BillGroup[];
-  billGroupId?: BillGroupId
+  billGroupId?: BillGroupId;
   billMates: BillMate[];
-  billMateId?: BillMateId
+  billMateId?: BillMateId;
   openModal?: (billMatesToGroup?: BillMatesToGroup) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -55,17 +58,16 @@ const BillMatesToGroupForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<BillMatesToGroup>(insertBillMatesToGroupParams);
   const editing = !!billMatesToGroup?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
   const backpath = useBackPath("bill-mates-to-groups");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: BillMatesToGroup },
+    data?: { error: string; values: BillMatesToGroup }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -85,8 +87,12 @@ const BillMatesToGroupForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const billMatesToGroupParsed = await insertBillMatesToGroupParams.safeParseAsync({ billGroupId,
-  billMateId, ...payload });
+    const billMatesToGroupParsed =
+      await insertBillMatesToGroupParams.safeParseAsync({
+        billGroupId,
+        billMateId,
+        ...payload,
+      });
     if (!billMatesToGroupParsed.success) {
       setErrors(billMatesToGroupParsed?.error.flatten().fieldErrors);
       return;
@@ -95,29 +101,37 @@ const BillMatesToGroupForm = ({
     closeModal && closeModal();
     const values = billMatesToGroupParsed.data;
     const pendingBillMatesToGroup: BillMatesToGroup = {
-      updatedAt: billMatesToGroup?.updatedAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
-      createdAt: billMatesToGroup?.createdAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
+      updatedAt:
+        billMatesToGroup?.updatedAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
+      createdAt:
+        billMatesToGroup?.createdAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
       id: billMatesToGroup?.id ?? "",
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingBillMatesToGroup,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingBillMatesToGroup,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
-          ? await updateBillMatesToGroupAction({ ...values, id: billMatesToGroup.id })
+          ? await updateBillMatesToGroupAction({
+              ...values,
+              id: billMatesToGroup.id,
+            })
           : await createBillMatesToGroupAction(values);
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingBillMatesToGroup 
+          values: pendingBillMatesToGroup,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -130,66 +144,77 @@ const BillMatesToGroupForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
       {/* Schema fields start */}
-      
-      {billGroupId ? null : <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.billGroupId ? "text-destructive" : "",
-          )}
-        >
-          BillGroup
-        </Label>
-        <Select defaultValue={billMatesToGroup?.billGroupId} name="billGroupId">
-          <SelectTrigger
-            className={cn(errors?.billGroupId ? "ring ring-destructive" : "")}
-          >
-            <SelectValue placeholder="Select a billGroup" />
-          </SelectTrigger>
-          <SelectContent>
-          {billGroups?.map((billGroup) => (
-            <SelectItem key={billGroup.id} value={billGroup.id.toString()}>
-              {billGroup.id}{/* TODO: Replace with a field from the billGroup model */}
-            </SelectItem>
-           ))}
-          </SelectContent>
-        </Select>
-        {errors?.billGroupId ? (
-          <p className="text-xs text-destructive mt-2">{errors.billGroupId[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div> }
 
-      {billMateId ? null : <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.billMateId ? "text-destructive" : "",
-          )}
-        >
-          BillMate
-        </Label>
-        <Select defaultValue={billMatesToGroup?.billMateId} name="billMateId">
-          <SelectTrigger
-            className={cn(errors?.billMateId ? "ring ring-destructive" : "")}
+      {billGroupId ? null : (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.billGroupId ? "text-destructive" : ""
+            )}
           >
-            <SelectValue placeholder="Select a billMate" />
-          </SelectTrigger>
-          <SelectContent>
-          {billMates?.map((billMate) => (
-            <SelectItem key={billMate.id} value={billMate.id.toString()}>
-              {billMate.id}{/* TODO: Replace with a field from the billMate model */}
-            </SelectItem>
-           ))}
-          </SelectContent>
-        </Select>
-        {errors?.billMateId ? (
-          <p className="text-xs text-destructive mt-2">{errors.billMateId[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div> }
+            BillGroup
+          </Label>
+          <Select
+            defaultValue={billMatesToGroup?.billGroupId}
+            name="billGroupId"
+          >
+            <SelectTrigger
+              className={cn(errors?.billGroupId ? "ring ring-destructive" : "")}
+            >
+              <SelectValue placeholder="Select a billGroup" />
+            </SelectTrigger>
+            <SelectContent>
+              {billGroups?.map((billGroup) => (
+                <SelectItem key={billGroup.id} value={billGroup.id.toString()}>
+                  {billGroup.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors?.billGroupId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.billGroupId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
+
+      {billMateId ? null : (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.billMateId ? "text-destructive" : ""
+            )}
+          >
+            BillMate
+          </Label>
+          <Select defaultValue={billMatesToGroup?.billMateId} name="billMateId">
+            <SelectTrigger
+              className={cn(errors?.billMateId ? "ring ring-destructive" : "")}
+            >
+              <SelectValue placeholder="Select a billMate" />
+            </SelectTrigger>
+            <SelectContent>
+              {billMates?.map((billMate) => (
+                <SelectItem key={billMate.id} value={billMate.id.toString()}>
+                  {billMate.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors?.billMateId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.billMateId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
       {/* Schema fields end */}
 
       {/* Save Button */}
@@ -205,8 +230,11 @@ const BillMatesToGroupForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: billMatesToGroup });
-              const error = await deleteBillMatesToGroupAction(billMatesToGroup.id);
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: billMatesToGroup });
+              const error = await deleteBillMatesToGroupAction(
+                billMatesToGroup.id
+              );
               setIsDeleting(false);
               const errorFormatted = {
                 error: error ?? "Error",

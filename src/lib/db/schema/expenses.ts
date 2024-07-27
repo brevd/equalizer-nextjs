@@ -39,7 +39,7 @@ export const insertExpenseParams = baseSchema
   .extend({
     amount: z.coerce.number(),
     billGroupId: z.coerce.string().min(1),
-    categoryId: z.coerce.string().min(1),
+    categoryId: z.coerce.string().min(1).nullable().default(null),
   })
   .omit({
     id: true,
@@ -51,7 +51,7 @@ export const updateExpenseParams = baseSchema
   .extend({
     amount: z.coerce.number(),
     billGroupId: z.coerce.string().min(1),
-    categoryId: z.coerce.string().min(1),
+    categoryId: z.coerce.string().min(1).nullable().default(null),
   })
   .omit({
     userId: true,

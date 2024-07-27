@@ -1,16 +1,14 @@
-import UserSettings from "./UserSettings";
-import { checkAuth, getUserAuth } from "@/lib/auth/utils";
+import { getBillMateByUserId } from "@/lib/api/billMates/queries";
 
 export default async function Account() {
-  await checkAuth();
-  const { session } = await getUserAuth();
-  
+  const { billMate } = await getBillMateByUserId();
+  if (!billMate)
+    return <>Oopsie, we can't find your bill mate, please contact support.</>;
   return (
     <main>
       <h1 className="text-2xl font-semibold my-4">Account</h1>
-      <div className="space-y-4">
-        <UserSettings session={session} />
-      </div>
+      <p>Primary User Bill Mate</p>
+      <pre>{JSON.stringify(billMate, null, " ")}</pre>
     </main>
   );
 }

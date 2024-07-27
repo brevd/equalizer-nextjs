@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
-
 import { type BillMate, insertBillMateParams } from "@/lib/db/schema/billMates";
 import {
   createBillMateAction,
@@ -23,9 +21,7 @@ import {
   updateBillMateAction,
 } from "@/lib/actions/billMates";
 
-
 const BillMateForm = ({
-  
   billMate,
   openModal,
   closeModal,
@@ -33,7 +29,7 @@ const BillMateForm = ({
   postSuccess,
 }: {
   billMate?: BillMate | null;
-  
+
   openModal?: (billMate?: BillMate) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -42,17 +38,16 @@ const BillMateForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<BillMate>(insertBillMateParams);
   const editing = !!billMate?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
   const backpath = useBackPath("bill-mates");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: BillMate },
+    data?: { error: string; values: BillMate }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -72,7 +67,9 @@ const BillMateForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const billMateParsed = await insertBillMateParams.safeParseAsync({  ...payload });
+    const billMateParsed = await insertBillMateParams.safeParseAsync({
+      ...payload,
+    });
     if (!billMateParsed.success) {
       setErrors(billMateParsed?.error.flatten().fieldErrors);
       return;
@@ -81,18 +78,22 @@ const BillMateForm = ({
     closeModal && closeModal();
     const values = billMateParsed.data;
     const pendingBillMate: BillMate = {
-      updatedAt: billMate?.updatedAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
-      createdAt: billMate?.createdAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
+      updatedAt:
+        billMate?.updatedAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
+      createdAt:
+        billMate?.createdAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
       id: billMate?.id ?? "",
-      userId: billMate?.userId ?? "",
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingBillMate,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingBillMate,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateBillMateAction({ ...values, id: billMate.id })
@@ -100,11 +101,11 @@ const BillMateForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingBillMate 
+          values: pendingBillMate,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -117,11 +118,11 @@ const BillMateForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
       {/* Schema fields start */}
-              <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.name ? "text-destructive" : "",
+            errors?.name ? "text-destructive" : ""
           )}
         >
           Name
@@ -153,7 +154,8 @@ const BillMateForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: billMate });
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: billMate });
               const error = await deleteBillMateAction(billMate.id);
               setIsDeleting(false);
               const errorFormatted = {

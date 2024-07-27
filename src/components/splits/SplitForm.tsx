@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
 import {
   Select,
   SelectContent,
@@ -45,9 +44,9 @@ const SplitForm = ({
 }: {
   split?: Split | null;
   billMates: BillMate[];
-  billMateId?: BillMateId
+  billMateId?: BillMateId;
   expenses: Expense[];
-  expenseId?: ExpenseId
+  expenseId?: ExpenseId;
   openModal?: (split?: Split) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -56,17 +55,16 @@ const SplitForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<Split>(insertSplitParams);
   const editing = !!split?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
   const backpath = useBackPath("splits");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Split },
+    data?: { error: string; values: Split }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -86,8 +84,11 @@ const SplitForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const splitParsed = await insertSplitParams.safeParseAsync({ billMateId,
-  expenseId, ...payload });
+    const splitParsed = await insertSplitParams.safeParseAsync({
+      billMateId,
+      expenseId,
+      ...payload,
+    });
     if (!splitParsed.success) {
       setErrors(splitParsed?.error.flatten().fieldErrors);
       return;
@@ -96,17 +97,22 @@ const SplitForm = ({
     closeModal && closeModal();
     const values = splitParsed.data;
     const pendingSplit: Split = {
-      updatedAt: split?.updatedAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
-      createdAt: split?.createdAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
+      updatedAt:
+        split?.updatedAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
+      createdAt:
+        split?.createdAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
       id: split?.id ?? "",
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingSplit,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingSplit,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateSplitAction({ ...values, id: split.id })
@@ -114,11 +120,11 @@ const SplitForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingSplit 
+          values: pendingSplit,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -131,11 +137,11 @@ const SplitForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
       {/* Schema fields start */}
-              <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.paid ? "text-destructive" : "",
+            errors?.paid ? "text-destructive" : ""
           )}
         >
           Paid
@@ -152,11 +158,11 @@ const SplitForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.responsible ? "text-destructive" : "",
+            errors?.responsible ? "text-destructive" : ""
           )}
         >
           Responsible
@@ -168,71 +174,81 @@ const SplitForm = ({
           defaultValue={split?.responsible ?? ""}
         />
         {errors?.responsible ? (
-          <p className="text-xs text-destructive mt-2">{errors.responsible[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.responsible[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
       </div>
 
-      {billMateId ? null : <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.billMateId ? "text-destructive" : "",
-          )}
-        >
-          BillMate
-        </Label>
-        <Select defaultValue={split?.billMateId} name="billMateId">
-          <SelectTrigger
-            className={cn(errors?.billMateId ? "ring ring-destructive" : "")}
+      {billMateId ? null : (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.billMateId ? "text-destructive" : ""
+            )}
           >
-            <SelectValue placeholder="Select a billMate" />
-          </SelectTrigger>
-          <SelectContent>
-          {billMates?.map((billMate) => (
-            <SelectItem key={billMate.id} value={billMate.id.toString()}>
-              {billMate.id}{/* TODO: Replace with a field from the billMate model */}
-            </SelectItem>
-           ))}
-          </SelectContent>
-        </Select>
-        {errors?.billMateId ? (
-          <p className="text-xs text-destructive mt-2">{errors.billMateId[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div> }
+            BillMate
+          </Label>
+          <Select defaultValue={split?.billMateId} name="billMateId">
+            <SelectTrigger
+              className={cn(errors?.billMateId ? "ring ring-destructive" : "")}
+            >
+              <SelectValue placeholder="Select a billMate" />
+            </SelectTrigger>
+            <SelectContent>
+              {billMates?.map((billMate) => (
+                <SelectItem key={billMate.id} value={billMate.id.toString()}>
+                  {billMate.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors?.billMateId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.billMateId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
 
-      {expenseId ? null : <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.expenseId ? "text-destructive" : "",
-          )}
-        >
-          Expense
-        </Label>
-        <Select defaultValue={split?.expenseId} name="expenseId">
-          <SelectTrigger
-            className={cn(errors?.expenseId ? "ring ring-destructive" : "")}
+      {expenseId ? null : (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.expenseId ? "text-destructive" : ""
+            )}
           >
-            <SelectValue placeholder="Select a expense" />
-          </SelectTrigger>
-          <SelectContent>
-          {expenses?.map((expense) => (
-            <SelectItem key={expense.id} value={expense.id.toString()}>
-              {expense.id}{/* TODO: Replace with a field from the expense model */}
-            </SelectItem>
-           ))}
-          </SelectContent>
-        </Select>
-        {errors?.expenseId ? (
-          <p className="text-xs text-destructive mt-2">{errors.expenseId[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div> }
+            Expense
+          </Label>
+          <Select defaultValue={split?.expenseId} name="expenseId">
+            <SelectTrigger
+              className={cn(errors?.expenseId ? "ring ring-destructive" : "")}
+            >
+              <SelectValue placeholder="Select a expense" />
+            </SelectTrigger>
+            <SelectContent>
+              {expenses?.map((expense) => (
+                <SelectItem key={expense.id} value={expense.id.toString()}>
+                  {expense.id}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors?.expenseId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.expenseId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
       {/* Schema fields end */}
 
       {/* Save Button */}

@@ -14,8 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
-
 import {
   Select,
   SelectContent,
@@ -43,7 +41,7 @@ const ExpenseForm = ({
 }: {
   expense?: Expense | null;
   billGroups: BillGroup[];
-  billGroupId?: BillGroupId
+  billGroupId?: BillGroupId;
   openModal?: (expense?: Expense) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -52,17 +50,16 @@ const ExpenseForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<Expense>(insertExpenseParams);
   const editing = !!expense?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
   const backpath = useBackPath("expenses");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Expense },
+    data?: { error: string; values: Expense }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -82,7 +79,10 @@ const ExpenseForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const expenseParsed = await insertExpenseParams.safeParseAsync({ billGroupId, ...payload });
+    const expenseParsed = await insertExpenseParams.safeParseAsync({
+      billGroupId,
+      ...payload,
+    });
     if (!expenseParsed.success) {
       setErrors(expenseParsed?.error.flatten().fieldErrors);
       return;
@@ -91,18 +91,23 @@ const ExpenseForm = ({
     closeModal && closeModal();
     const values = expenseParsed.data;
     const pendingExpense: Expense = {
-      updatedAt: expense?.updatedAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
-      createdAt: expense?.createdAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
+      updatedAt:
+        expense?.updatedAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
+      createdAt:
+        expense?.createdAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
       id: expense?.id ?? "",
       userId: expense?.userId ?? "",
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingExpense,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingExpense,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateExpenseAction({ ...values, id: expense.id })
@@ -110,11 +115,11 @@ const ExpenseForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingExpense 
+          values: pendingExpense,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -127,11 +132,11 @@ const ExpenseForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
       {/* Schema fields start */}
-              <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.amount ? "text-destructive" : "",
+            errors?.amount ? "text-destructive" : ""
           )}
         >
           Amount
@@ -148,11 +153,11 @@ const ExpenseForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.title ? "text-destructive" : "",
+            errors?.title ? "text-destructive" : ""
           )}
         >
           Title
@@ -169,11 +174,11 @@ const ExpenseForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.paymentMethod ? "text-destructive" : "",
+            errors?.paymentMethod ? "text-destructive" : ""
           )}
         >
           Payment Method
@@ -185,16 +190,18 @@ const ExpenseForm = ({
           defaultValue={expense?.paymentMethod ?? ""}
         />
         {errors?.paymentMethod ? (
-          <p className="text-xs text-destructive mt-2">{errors.paymentMethod[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.paymentMethod[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.vendor ? "text-destructive" : "",
+            errors?.vendor ? "text-destructive" : ""
           )}
         >
           Vendor
@@ -212,35 +219,39 @@ const ExpenseForm = ({
         )}
       </div>
 
-      {billGroupId ? null : <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.billGroupId ? "text-destructive" : "",
-          )}
-        >
-          BillGroup
-        </Label>
-        <Select defaultValue={expense?.billGroupId} name="billGroupId">
-          <SelectTrigger
-            className={cn(errors?.billGroupId ? "ring ring-destructive" : "")}
+      {billGroupId ? null : (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.billGroupId ? "text-destructive" : ""
+            )}
           >
-            <SelectValue placeholder="Select a billGroup" />
-          </SelectTrigger>
-          <SelectContent>
-          {billGroups?.map((billGroup) => (
-            <SelectItem key={billGroup.id} value={billGroup.id.toString()}>
-              {billGroup.id}{/* TODO: Replace with a field from the billGroup model */}
-            </SelectItem>
-           ))}
-          </SelectContent>
-        </Select>
-        {errors?.billGroupId ? (
-          <p className="text-xs text-destructive mt-2">{errors.billGroupId[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div> }
+            BillGroup
+          </Label>
+          <Select defaultValue={expense?.billGroupId} name="billGroupId">
+            <SelectTrigger
+              className={cn(errors?.billGroupId ? "ring ring-destructive" : "")}
+            >
+              <SelectValue placeholder="Select a billGroup" />
+            </SelectTrigger>
+            <SelectContent>
+              {billGroups?.map((billGroup) => (
+                <SelectItem key={billGroup.id} value={billGroup.id.toString()}>
+                  {billGroup.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors?.billGroupId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.billGroupId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
       {/* Schema fields end */}
 
       {/* Save Button */}
@@ -256,7 +267,8 @@ const ExpenseForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: expense });
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: expense });
               const error = await deleteExpenseAction(expense.id);
               setIsDeleting(false);
               const errorFormatted = {

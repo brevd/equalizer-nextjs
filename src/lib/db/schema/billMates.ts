@@ -7,35 +7,38 @@ import { type getBillMates } from "@/lib/api/billMates/queries";
 
 import { nanoid, timestamps } from "@/lib/utils";
 
-
-export const billMates = sqliteTable('bill_mates', {
-  id: text("id").primaryKey().$defaultFn(() => nanoid()),
+export const billMates = sqliteTable("bill_mates", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
   name: text("name").notNull(),
-  userId: text("user_id").notNull(),
-  
+  userId: text("user_id"),
+
   createdAt: text("created_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at")
     .notNull()
     .default(sql`CURRENT_TIMESTAMP`),
-
 });
-
 
 // Schema for billMates - used to validate API requests
-const baseSchema = createSelectSchema(billMates).omit(timestamps)
+const baseSchema = createSelectSchema(billMates).omit(timestamps);
 
-export const insertBillMateSchema = createInsertSchema(billMates).omit(timestamps);
-export const insertBillMateParams = baseSchema.extend({}).omit({ 
-  id: true,
-  userId: true
-});
+export const insertBillMateSchema =
+  createInsertSchema(billMates).omit(timestamps);
+export const insertBillMateParams = baseSchema
+  .extend({ userId: z.coerce.string().min(1).nullable().default(null) })
+  .omit({
+    id: true,
+  });
 
 export const updateBillMateSchema = baseSchema;
-export const updateBillMateParams = baseSchema.extend({}).omit({ 
-  userId: true
-});
+export const updateBillMateParams = baseSchema
+  .extend({ userId: z.coerce.string().min(1).nullable().default(null) })
+  .omit({
+    userId: true,
+  });
 export const billMateIdSchema = baseSchema.pick({ id: true });
 
 // Types for billMates - used to type API request params and within Components
@@ -44,7 +47,8 @@ export type NewBillMate = z.infer<typeof insertBillMateSchema>;
 export type NewBillMateParams = z.infer<typeof insertBillMateParams>;
 export type UpdateBillMateParams = z.infer<typeof updateBillMateParams>;
 export type BillMateId = z.infer<typeof billMateIdSchema>["id"];
-    
-// this type infers the return from getBillMates() - meaning it will include any joins
-export type CompleteBillMate = Awaited<ReturnType<typeof getBillMates>>["billMates"][number];
 
+// this type infers the return from getBillMates() - meaning it will include any joins
+export type CompleteBillMate = Awaited<
+  ReturnType<typeof getBillMates>
+>["billMates"][number];

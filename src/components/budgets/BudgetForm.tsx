@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
 import {
   Select,
   SelectContent,
@@ -42,7 +41,7 @@ const BudgetForm = ({
 }: {
   budget?: Budget | null;
   categories: Category[];
-  categoryId?: CategoryId
+  categoryId?: CategoryId;
   openModal?: (budget?: Budget) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -51,17 +50,16 @@ const BudgetForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<Budget>(insertBudgetParams);
   const editing = !!budget?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
   const backpath = useBackPath("budgets");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Budget },
+    data?: { error: string; values: Budget }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -81,7 +79,10 @@ const BudgetForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const budgetParsed = await insertBudgetParams.safeParseAsync({ categoryId, ...payload });
+    const budgetParsed = await insertBudgetParams.safeParseAsync({
+      categoryId,
+      ...payload,
+    });
     if (!budgetParsed.success) {
       setErrors(budgetParsed?.error.flatten().fieldErrors);
       return;
@@ -90,18 +91,23 @@ const BudgetForm = ({
     closeModal && closeModal();
     const values = budgetParsed.data;
     const pendingBudget: Budget = {
-      updatedAt: budget?.updatedAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
-      createdAt: budget?.createdAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
+      updatedAt:
+        budget?.updatedAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
+      createdAt:
+        budget?.createdAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
       id: budget?.id ?? "",
       userId: budget?.userId ?? "",
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingBudget,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingBudget,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateBudgetAction({ ...values, id: budget.id })
@@ -109,11 +115,11 @@ const BudgetForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingBudget 
+          values: pendingBudget,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -126,11 +132,11 @@ const BudgetForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
       {/* Schema fields start */}
-              <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.amount ? "text-destructive" : "",
+            errors?.amount ? "text-destructive" : ""
           )}
         >
           Amount
@@ -147,11 +153,11 @@ const BudgetForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.period ? "text-destructive" : "",
+            errors?.period ? "text-destructive" : ""
           )}
         >
           Period
@@ -169,35 +175,39 @@ const BudgetForm = ({
         )}
       </div>
 
-      {categoryId ? null : <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.categoryId ? "text-destructive" : "",
-          )}
-        >
-          Category
-        </Label>
-        <Select defaultValue={budget?.categoryId} name="categoryId">
-          <SelectTrigger
-            className={cn(errors?.categoryId ? "ring ring-destructive" : "")}
+      {categoryId ? null : (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.categoryId ? "text-destructive" : ""
+            )}
           >
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-          {categories?.map((category) => (
-            <SelectItem key={category.id} value={category.id.toString()}>
-              {category.id}{/* TODO: Replace with a field from the category model */}
-            </SelectItem>
-           ))}
-          </SelectContent>
-        </Select>
-        {errors?.categoryId ? (
-          <p className="text-xs text-destructive mt-2">{errors.categoryId[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div> }
+            Category
+          </Label>
+          <Select defaultValue={budget?.categoryId} name="categoryId">
+            <SelectTrigger
+              className={cn(errors?.categoryId ? "ring ring-destructive" : "")}
+            >
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories?.map((category) => (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  {category.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors?.categoryId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.categoryId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
       {/* Schema fields end */}
 
       {/* Save Button */}
@@ -213,7 +223,8 @@ const BudgetForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: budget });
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: budget });
               const error = await deleteBudgetAction(budget.id);
               setIsDeleting(false);
               const errorFormatted = {
