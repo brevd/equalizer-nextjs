@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useValidatedForm } from "@/lib/hooks/useValidatedForm";
 
 import { type Action, cn } from "@/lib/utils";
-import { type TAddOptimistic } from "@/app/(app)/expenses/useOptimisticExpenses";
+import { type TAddOptimistic } from "@/app/(app)/admin/expenses/useOptimisticExpenses";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,17 +22,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { type Expense, insertExpenseParams } from "@/lib/db/schema/expenses";
+import {
+  type Expense,
+  insertExpenseParams,
+  paymentMethodArray,
+} from "@/lib/db/schema/expenses";
 import {
   createExpenseAction,
   deleteExpenseAction,
   updateExpenseAction,
 } from "@/lib/actions/expenses";
 import { type BillGroup, type BillGroupId } from "@/lib/db/schema/billGroups";
+import { Category, CategoryId } from "@/lib/db/schema/categories";
 
 const ExpenseForm = ({
   billGroups,
   billGroupId,
+  categoryId,
+  categories,
   expense,
   openModal,
   closeModal,
@@ -42,6 +49,8 @@ const ExpenseForm = ({
   expense?: Expense | null;
   billGroups: BillGroup[];
   billGroupId?: BillGroupId;
+  categories: Category[];
+  categoryId?: CategoryId;
   openModal?: (expense?: Expense) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -81,8 +90,10 @@ const ExpenseForm = ({
     const payload = Object.fromEntries(data.entries());
     const expenseParsed = await insertExpenseParams.safeParseAsync({
       billGroupId,
+      categoryId,
       ...payload,
     });
+    console.log(expenseParsed);
     if (!expenseParsed.success) {
       setErrors(expenseParsed?.error.flatten().fieldErrors);
       return;
@@ -108,6 +119,8 @@ const ExpenseForm = ({
             data: pendingExpense,
             action: editing ? "update" : "create",
           });
+
+        console.log(JSON.stringify(values));
 
         const error = editing
           ? await updateExpenseAction({ ...values, id: expense.id })
@@ -183,12 +196,20 @@ const ExpenseForm = ({
         >
           Payment Method
         </Label>
-        <Input
-          type="text"
-          name="paymentMethod"
-          className={cn(errors?.paymentMethod ? "ring ring-destructive" : "")}
-          defaultValue={expense?.paymentMethod ?? ""}
-        />
+        <Select defaultValue={""} name="paymentMethod">
+          <SelectTrigger
+            className={cn(errors?.billGroupId ? "ring ring-destructive" : "")}
+          >
+            <SelectValue placeholder="Select a payment method" />
+          </SelectTrigger>
+          <SelectContent>
+            {paymentMethodArray.toSorted().map((pm) => (
+              <SelectItem key={pm} value={pm}>
+                {pm}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {errors?.paymentMethod ? (
           <p className="text-xs text-destructive mt-2">
             {errors.paymentMethod[0]}
@@ -218,6 +239,40 @@ const ExpenseForm = ({
           <div className="h-6" />
         )}
       </div>
+
+      {categoryId ? null : (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.categoryId ? "text-destructive" : ""
+            )}
+          >
+            Category
+          </Label>
+          <Select defaultValue={expense?.categoryId || ""} name="categoryId">
+            <SelectTrigger
+              className={cn(errors?.categoryId ? "ring ring-destructive" : "")}
+            >
+              <SelectValue placeholder="Select a category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories?.map((category) => (
+                <SelectItem key={category.id} value={category.id.toString()}>
+                  {category.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors?.categoryId ? (
+            <p className="text-xs text-destructive mt-2">
+              {errors.categoryId[0]}
+            </p>
+          ) : (
+            <div className="h-6" />
+          )}
+        </div>
+      )}
 
       {billGroupId ? null : (
         <div>

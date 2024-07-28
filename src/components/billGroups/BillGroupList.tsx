@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { type BillGroup, CompleteBillGroup } from "@/lib/db/schema/billGroups";
 import Modal from "@/components/shared/Modal";
 
-import { useOptimisticBillGroups } from "@/app/(app)/bill-groups/useOptimisticBillGroups";
+import { useOptimisticBillGroups } from "@/app/(app)/admin/bill-groups/useOptimisticBillGroups";
 import { Button } from "@/components/ui/button";
 import BillGroupForm from "./BillGroupForm";
 import { PlusIcon } from "lucide-react";
@@ -17,17 +17,15 @@ type TOpenModal = (billGroup?: BillGroup) => void;
 
 export default function BillGroupList({
   billGroups,
-   
 }: {
   billGroups: CompleteBillGroup[];
-   
 }) {
-  const { optimisticBillGroups, addOptimisticBillGroup } = useOptimisticBillGroups(
-    billGroups,
-     
-  );
+  const { optimisticBillGroups, addOptimisticBillGroup } =
+    useOptimisticBillGroups(billGroups);
   const [open, setOpen] = useState(false);
-  const [activeBillGroup, setActiveBillGroup] = useState<BillGroup | null>(null);
+  const [activeBillGroup, setActiveBillGroup] = useState<BillGroup | null>(
+    null
+  );
   const openModal = (billGroup?: BillGroup) => {
     setOpen(true);
     billGroup ? setActiveBillGroup(billGroup) : setActiveBillGroup(null);
@@ -46,7 +44,6 @@ export default function BillGroupList({
           addOptimistic={addOptimisticBillGroup}
           openModal={openModal}
           closeModal={closeModal}
-          
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -86,22 +83,19 @@ const BillGroup = ({
     ? pathname
     : pathname + "/bill-groups/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{billGroup.title}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + billGroup.id }>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + billGroup.id}>Edit</Link>
       </Button>
     </li>
   );
@@ -118,7 +112,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Bill Groups </Button>
+          <PlusIcon className="h-4" /> New Bill Groups{" "}
+        </Button>
       </div>
     </div>
   );

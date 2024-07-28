@@ -8,25 +8,30 @@ import { cn } from "@/lib/utils";
 import { type Expense, CompleteExpense } from "@/lib/db/schema/expenses";
 import Modal from "@/components/shared/Modal";
 import { type BillGroup, type BillGroupId } from "@/lib/db/schema/billGroups";
-import { useOptimisticExpenses } from "@/app/(app)/expenses/useOptimisticExpenses";
+import { useOptimisticExpenses } from "@/app/(app)/admin/expenses/useOptimisticExpenses";
 import { Button } from "@/components/ui/button";
 import ExpenseForm from "./ExpenseForm";
 import { PlusIcon } from "lucide-react";
+import { Category, CategoryId } from "@/lib/db/schema/categories";
 
 type TOpenModal = (expense?: Expense) => void;
 
 export default function ExpenseList({
   expenses,
   billGroups,
-  billGroupId 
+  billGroupId,
+  categoryId,
+  categories,
 }: {
   expenses: CompleteExpense[];
   billGroups: BillGroup[];
-  billGroupId?: BillGroupId 
+  billGroupId?: BillGroupId;
+  categories: Category[];
+  categoryId?: CategoryId;
 }) {
   const { optimisticExpenses, addOptimisticExpense } = useOptimisticExpenses(
     expenses,
-    billGroups 
+    billGroups
   );
   const [open, setOpen] = useState(false);
   const [activeExpense, setActiveExpense] = useState<Expense | null>(null);
@@ -49,7 +54,9 @@ export default function ExpenseList({
           openModal={openModal}
           closeModal={closeModal}
           billGroups={billGroups}
-        billGroupId={billGroupId}
+          billGroupId={billGroupId}
+          categories={categories}
+          categoryId={categoryId}
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -62,11 +69,7 @@ export default function ExpenseList({
       ) : (
         <ul>
           {optimisticExpenses.map((expense) => (
-            <Expense
-              expense={expense}
-              key={expense.id}
-              openModal={openModal}
-            />
+            <Expense expense={expense} key={expense.id} openModal={openModal} />
           ))}
         </ul>
       )}
@@ -89,22 +92,19 @@ const Expense = ({
     ? pathname
     : pathname + "/expenses/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{expense.amount}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + expense.id }>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + expense.id}>Edit</Link>
       </Button>
     </li>
   );
@@ -121,7 +121,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Expenses </Button>
+          <PlusIcon className="h-4" /> New Expenses{" "}
+        </Button>
       </div>
     </div>
   );

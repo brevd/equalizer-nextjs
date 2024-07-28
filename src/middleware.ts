@@ -8,7 +8,7 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware((auth, req) => {
-  const { userId, sessionClaims, redirectToSignIn } = auth();
+  const { userId, sessionClaims } = auth();
 
   // If the user isn't signed in and the route is private, redirect to sign-in
   if (!userId && !isPublicRoute(req)) {

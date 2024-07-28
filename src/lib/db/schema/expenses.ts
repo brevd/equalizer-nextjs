@@ -8,6 +8,15 @@ import { type getExpenses } from "@/lib/api/expenses/queries";
 import { nanoid, timestamps } from "@/lib/utils";
 import { categories } from "./categories";
 
+export const paymentMethodArray = [
+  "visa",
+  "mastercard",
+  "debit",
+  "cheque",
+  "e-transfer",
+  "cash",
+];
+
 export const expenses = sqliteTable("expenses", {
   id: text("id")
     .primaryKey()

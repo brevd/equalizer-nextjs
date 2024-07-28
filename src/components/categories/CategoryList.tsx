@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { type Category, CompleteCategory } from "@/lib/db/schema/categories";
 import Modal from "@/components/shared/Modal";
 
-import { useOptimisticCategories } from "@/app/(app)/categories/useOptimisticCategories";
+import { useOptimisticCategories } from "@/app/(app)/admin/categories/useOptimisticCategories";
 import { Button } from "@/components/ui/button";
 import CategoryForm from "./CategoryForm";
 import { PlusIcon } from "lucide-react";
@@ -17,15 +17,11 @@ type TOpenModal = (category?: Category) => void;
 
 export default function CategoryList({
   categories,
-   
 }: {
   categories: CompleteCategory[];
-   
 }) {
-  const { optimisticCategories, addOptimisticCategory } = useOptimisticCategories(
-    categories,
-     
-  );
+  const { optimisticCategories, addOptimisticCategory } =
+    useOptimisticCategories(categories);
   const [open, setOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const openModal = (category?: Category) => {
@@ -46,7 +42,6 @@ export default function CategoryList({
           addOptimistic={addOptimisticCategory}
           openModal={openModal}
           closeModal={closeModal}
-          
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -86,22 +81,19 @@ const Category = ({
     ? pathname
     : pathname + "/categories/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{category.title}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + category.id }>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + category.id}>Edit</Link>
       </Button>
     </li>
   );
@@ -118,7 +110,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Categories </Button>
+          <PlusIcon className="h-4" /> New Categories{" "}
+        </Button>
       </div>
     </div>
   );

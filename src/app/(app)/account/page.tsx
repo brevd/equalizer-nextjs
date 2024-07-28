@@ -3,7 +3,7 @@ import { getBillMateByUserId } from "@/lib/api/billMates/queries";
 export default async function Account() {
   const { billMate } = await getBillMateByUserId();
   if (!billMate)
-    return <>Oopsie, we can't find your bill mate, please contact support.</>;
+    return <>Oopsie, we cannot find your bill mate, please contact support.</>;
   return (
     <main>
       <h1 className="text-2xl font-semibold my-4">Account</h1>

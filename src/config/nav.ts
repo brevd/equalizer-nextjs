@@ -1,5 +1,5 @@
 import { SidebarLink } from "@/components/SidebarItems";
-import { Cog, Globe, User, HomeIcon } from "lucide-react";
+import { Cog, Globe, User, HomeIcon, PiggyBank, Users } from "lucide-react";
 
 type AdditionalLinks = {
   title: string;
@@ -17,32 +17,15 @@ export const additionalLinks: AdditionalLinks[] = [
     title: "Entities",
     links: [
       {
-        href: "/bill-mates-to-groups",
-        title: "Bill Mates To Groups",
-        icon: Globe,
-      },
-      {
         href: "/budgets",
         title: "Budgets",
-        icon: Globe,
+        icon: PiggyBank,
       },
       {
-        href: "/categories",
-        title: "Categories",
-        icon: Globe,
-      },
-      {
-        href: "/bill-groups",
-        title: "Bill Groups",
-        icon: Globe,
-      },
-      {
-        href: "/bill-mates",
-        title: "Bill Mates",
-        icon: Globe,
+        href: "/groups",
+        title: "Expense Groups",
+        icon: Users,
       },
     ],
   },
-
 ];
-

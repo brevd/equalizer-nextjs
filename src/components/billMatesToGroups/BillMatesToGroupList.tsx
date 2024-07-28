@@ -5,11 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/utils";
-import { type BillMatesToGroup, CompleteBillMatesToGroup } from "@/lib/db/schema/billMatesToGroups";
+import {
+  type BillMatesToGroup,
+  CompleteBillMatesToGroup,
+} from "@/lib/db/schema/billMatesToGroups";
 import Modal from "@/components/shared/Modal";
 import { type BillGroup, type BillGroupId } from "@/lib/db/schema/billGroups";
 import { type BillMate, type BillMateId } from "@/lib/db/schema/billMates";
-import { useOptimisticBillMatesToGroups } from "@/app/(app)/bill-mates-to-groups/useOptimisticBillMatesToGroups";
+import { useOptimisticBillMatesToGroups } from "@/app/(app)/admin/bill-mates-to-groups/useOptimisticBillMatesToGroups";
 import { Button } from "@/components/ui/button";
 import BillMatesToGroupForm from "./BillMatesToGroupForm";
 import { PlusIcon } from "lucide-react";
@@ -21,24 +24,24 @@ export default function BillMatesToGroupList({
   billGroups,
   billGroupId,
   billMates,
-  billMateId 
+  billMateId,
 }: {
   billMatesToGroups: CompleteBillMatesToGroup[];
   billGroups: BillGroup[];
   billGroupId?: BillGroupId;
   billMates: BillMate[];
-  billMateId?: BillMateId 
+  billMateId?: BillMateId;
 }) {
-  const { optimisticBillMatesToGroups, addOptimisticBillMatesToGroup } = useOptimisticBillMatesToGroups(
-    billMatesToGroups,
-    billGroups,
-  billMates 
-  );
+  const { optimisticBillMatesToGroups, addOptimisticBillMatesToGroup } =
+    useOptimisticBillMatesToGroups(billMatesToGroups, billGroups, billMates);
   const [open, setOpen] = useState(false);
-  const [activeBillMatesToGroup, setActiveBillMatesToGroup] = useState<BillMatesToGroup | null>(null);
+  const [activeBillMatesToGroup, setActiveBillMatesToGroup] =
+    useState<BillMatesToGroup | null>(null);
   const openModal = (billMatesToGroup?: BillMatesToGroup) => {
     setOpen(true);
-    billMatesToGroup ? setActiveBillMatesToGroup(billMatesToGroup) : setActiveBillMatesToGroup(null);
+    billMatesToGroup
+      ? setActiveBillMatesToGroup(billMatesToGroup)
+      : setActiveBillMatesToGroup(null);
   };
   const closeModal = () => setOpen(false);
 
@@ -47,7 +50,11 @@ export default function BillMatesToGroupList({
       <Modal
         open={open}
         setOpen={setOpen}
-        title={activeBillMatesToGroup ? "Edit BillMatesToGroup" : "Create Bill Mates To Group"}
+        title={
+          activeBillMatesToGroup
+            ? "Edit BillMatesToGroup"
+            : "Create Bill Mates To Group"
+        }
       >
         <BillMatesToGroupForm
           billMatesToGroup={activeBillMatesToGroup}
@@ -55,9 +62,9 @@ export default function BillMatesToGroupList({
           openModal={openModal}
           closeModal={closeModal}
           billGroups={billGroups}
-        billGroupId={billGroupId}
-        billMates={billMates}
-        billMateId={billMateId}
+          billGroupId={billGroupId}
+          billMates={billMates}
+          billMateId={billMateId}
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -97,22 +104,19 @@ const BillMatesToGroup = ({
     ? pathname
     : pathname + "/bill-mates-to-groups/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{billMatesToGroup.billGroupId}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + billMatesToGroup.id }>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + billMatesToGroup.id}>Edit</Link>
       </Button>
     </li>
   );
@@ -129,7 +133,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Bill Mates To Groups </Button>
+          <PlusIcon className="h-4" /> New Bill Mates To Groups{" "}
+        </Button>
       </div>
     </div>
   );

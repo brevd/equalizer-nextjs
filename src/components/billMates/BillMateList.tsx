@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { type BillMate, CompleteBillMate } from "@/lib/db/schema/billMates";
 import Modal from "@/components/shared/Modal";
 
-import { useOptimisticBillMates } from "@/app/(app)/bill-mates/useOptimisticBillMates";
+import { useOptimisticBillMates } from "@/app/(app)/admin/bill-mates/useOptimisticBillMates";
 import { Button } from "@/components/ui/button";
 import BillMateForm from "./BillMateForm";
 import { PlusIcon } from "lucide-react";
@@ -17,15 +17,11 @@ type TOpenModal = (billMate?: BillMate) => void;
 
 export default function BillMateList({
   billMates,
-   
 }: {
   billMates: CompleteBillMate[];
-   
 }) {
-  const { optimisticBillMates, addOptimisticBillMate } = useOptimisticBillMates(
-    billMates,
-     
-  );
+  const { optimisticBillMates, addOptimisticBillMate } =
+    useOptimisticBillMates(billMates);
   const [open, setOpen] = useState(false);
   const [activeBillMate, setActiveBillMate] = useState<BillMate | null>(null);
   const openModal = (billMate?: BillMate) => {
@@ -46,7 +42,6 @@ export default function BillMateList({
           addOptimistic={addOptimisticBillMate}
           openModal={openModal}
           closeModal={closeModal}
-          
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -86,22 +81,19 @@ const BillMate = ({
     ? pathname
     : pathname + "/bill-mates/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{billMate.name}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + billMate.id }>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + billMate.id}>Edit</Link>
       </Button>
     </li>
   );
@@ -118,7 +110,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Bill Mates </Button>
+          <PlusIcon className="h-4" /> New Bill Mates{" "}
+        </Button>
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+"use client";
+
 import { z } from "zod";
 
 import { useState, useTransition } from "react";
@@ -7,7 +9,7 @@ import { toast } from "sonner";
 import { useValidatedForm } from "@/lib/hooks/useValidatedForm";
 
 import { type Action, cn } from "@/lib/utils";
-import { type TAddOptimistic } from "@/app/(app)/budgets/useOptimisticBudgets";
+import { type TAddOptimistic } from "@/app/(app)/admin/budgets/useOptimisticBudgets";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -153,27 +155,29 @@ const BudgetForm = ({
           <div className="h-6" />
         )}
       </div>
-      <div>
-        <Label
-          className={cn(
-            "mb-2 inline-block",
-            errors?.period ? "text-destructive" : ""
+      {/* (
+        <div>
+          <Label
+            className={cn(
+              "mb-2 inline-block",
+              errors?.period ? "text-destructive" : ""
+            )}
+          >
+            Period
+          </Label>
+          <Input
+            type="text"
+            name="period"
+            className={cn(errors?.period ? "ring ring-destructive" : "")}
+            defaultValue={budget?.period ?? ""}
+          />
+          {errors?.period ? (
+            <p className="text-xs text-destructive mt-2">{errors.period[0]}</p>
+          ) : (
+            <div className="h-6" />
           )}
-        >
-          Period
-        </Label>
-        <Input
-          type="text"
-          name="period"
-          className={cn(errors?.period ? "ring ring-destructive" : "")}
-          defaultValue={budget?.period ?? ""}
-        />
-        {errors?.period ? (
-          <p className="text-xs text-destructive mt-2">{errors.period[0]}</p>
-        ) : (
-          <div className="h-6" />
-        )}
-      </div>
+        </div>
+      ) */}
 
       {categoryId ? null : (
         <div>

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { type Budget, CompleteBudget } from "@/lib/db/schema/budgets";
 import Modal from "@/components/shared/Modal";
 import { type Category, type CategoryId } from "@/lib/db/schema/categories";
-import { useOptimisticBudgets } from "@/app/(app)/budgets/useOptimisticBudgets";
+import { useOptimisticBudgets } from "@/app/(app)/admin/budgets/useOptimisticBudgets";
 import { Button } from "@/components/ui/button";
 import BudgetForm from "./BudgetForm";
 import { PlusIcon } from "lucide-react";
@@ -18,15 +18,15 @@ type TOpenModal = (budget?: Budget) => void;
 export default function BudgetList({
   budgets,
   categories,
-  categoryId 
+  categoryId,
 }: {
   budgets: CompleteBudget[];
   categories: Category[];
-  categoryId?: CategoryId 
+  categoryId?: CategoryId;
 }) {
   const { optimisticBudgets, addOptimisticBudget } = useOptimisticBudgets(
     budgets,
-    categories 
+    categories
   );
   const [open, setOpen] = useState(false);
   const [activeBudget, setActiveBudget] = useState<Budget | null>(null);
@@ -49,7 +49,7 @@ export default function BudgetList({
           openModal={openModal}
           closeModal={closeModal}
           categories={categories}
-        categoryId={categoryId}
+          categoryId={categoryId}
         />
       </Modal>
       <div className="absolute right-0 top-0 ">
@@ -62,11 +62,7 @@ export default function BudgetList({
       ) : (
         <ul>
           {optimisticBudgets.map((budget) => (
-            <Budget
-              budget={budget}
-              key={budget.id}
-              openModal={openModal}
-            />
+            <Budget budget={budget} key={budget.id} openModal={openModal} />
           ))}
         </ul>
       )}
@@ -89,22 +85,19 @@ const Budget = ({
     ? pathname
     : pathname + "/budgets/";
 
-
   return (
     <li
       className={cn(
         "flex justify-between my-2",
         mutating ? "opacity-30 animate-pulse" : "",
-        deleting ? "text-destructive" : "",
+        deleting ? "text-destructive" : ""
       )}
     >
       <div className="w-full">
         <div>{budget.amount}</div>
       </div>
       <Button variant={"link"} asChild>
-        <Link href={ basePath + "/" + budget.id }>
-          Edit
-        </Link>
+        <Link href={basePath + "/" + budget.id}>Edit</Link>
       </Button>
     </li>
   );
@@ -121,7 +114,8 @@ const EmptyState = ({ openModal }: { openModal: TOpenModal }) => {
       </p>
       <div className="mt-6">
         <Button onClick={() => openModal()}>
-          <PlusIcon className="h-4" /> New Budgets </Button>
+          <PlusIcon className="h-4" /> New Budgets{" "}
+        </Button>
       </div>
     </div>
   );

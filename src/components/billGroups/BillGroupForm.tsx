@@ -7,25 +7,24 @@ import { toast } from "sonner";
 import { useValidatedForm } from "@/lib/hooks/useValidatedForm";
 
 import { type Action, cn } from "@/lib/utils";
-import { type TAddOptimistic } from "@/app/(app)/bill-groups/useOptimisticBillGroups";
+import { type TAddOptimistic } from "@/app/(app)/admin/bill-groups/useOptimisticBillGroups";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
-
-import { type BillGroup, insertBillGroupParams } from "@/lib/db/schema/billGroups";
+import {
+  type BillGroup,
+  insertBillGroupParams,
+} from "@/lib/db/schema/billGroups";
 import {
   createBillGroupAction,
   deleteBillGroupAction,
   updateBillGroupAction,
 } from "@/lib/actions/billGroups";
 
-
 const BillGroupForm = ({
-  
   billGroup,
   openModal,
   closeModal,
@@ -33,7 +32,7 @@ const BillGroupForm = ({
   postSuccess,
 }: {
   billGroup?: BillGroup | null;
-  
+
   openModal?: (billGroup?: BillGroup) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -42,17 +41,16 @@ const BillGroupForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<BillGroup>(insertBillGroupParams);
   const editing = !!billGroup?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
   const backpath = useBackPath("bill-groups");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: BillGroup },
+    data?: { error: string; values: BillGroup }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -72,7 +70,9 @@ const BillGroupForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const billGroupParsed = await insertBillGroupParams.safeParseAsync({  ...payload });
+    const billGroupParsed = await insertBillGroupParams.safeParseAsync({
+      ...payload,
+    });
     if (!billGroupParsed.success) {
       setErrors(billGroupParsed?.error.flatten().fieldErrors);
       return;
@@ -81,17 +81,22 @@ const BillGroupForm = ({
     closeModal && closeModal();
     const values = billGroupParsed.data;
     const pendingBillGroup: BillGroup = {
-      updatedAt: billGroup?.updatedAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
-      createdAt: billGroup?.createdAt ?? new Date().toISOString().slice(0, 19).replace("T", " "),
+      updatedAt:
+        billGroup?.updatedAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
+      createdAt:
+        billGroup?.createdAt ??
+        new Date().toISOString().slice(0, 19).replace("T", " "),
       id: billGroup?.id ?? "",
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingBillGroup,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingBillGroup,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateBillGroupAction({ ...values, id: billGroup.id })
@@ -99,11 +104,11 @@ const BillGroupForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingBillGroup 
+          values: pendingBillGroup,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -116,11 +121,11 @@ const BillGroupForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
       {/* Schema fields start */}
-              <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.title ? "text-destructive" : "",
+            errors?.title ? "text-destructive" : ""
           )}
         >
           Title
@@ -137,11 +142,11 @@ const BillGroupForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.description ? "text-destructive" : "",
+            errors?.description ? "text-destructive" : ""
           )}
         >
           Description
@@ -153,7 +158,9 @@ const BillGroupForm = ({
           defaultValue={billGroup?.description ?? ""}
         />
         {errors?.description ? (
-          <p className="text-xs text-destructive mt-2">{errors.description[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.description[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -173,7 +180,8 @@ const BillGroupForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: billGroup });
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: billGroup });
               const error = await deleteBillGroupAction(billGroup.id);
               setIsDeleting(false);
               const errorFormatted = {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import SidebarItems from "./SidebarItems";import { UserButton } from "@clerk/nextjs";
+import SidebarItems from "./SidebarItems";
+import { UserButton } from "@clerk/nextjs";
 
 import { AuthSession, getUserAuth } from "@/lib/auth/utils";
 
@@ -31,14 +32,8 @@ const UserDetails = ({ session }: { session: AuthSession }) => {
 
   return (
     <Link href="/account">
-      <div className="flex items-center justify-between w-full border-t border-border pt-4 px-2">
-        <div className="text-muted-foreground">
-          <p className="text-xs">{user.name ?? "John Doe"}</p>
-          <p className="text-xs font-light pr-4">
-            {user.email ?? "john@doe.com"}
-          </p>
-        </div>
-        <UserButton afterSignOutUrl="/" />
+      <div className="flex items-center justify-between w-full border-t border-border py-4 px-2 bg-slate-100 rounded-md">
+        <UserButton showName />
       </div>
     </Link>
   );

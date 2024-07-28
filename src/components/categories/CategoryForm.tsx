@@ -7,25 +7,24 @@ import { toast } from "sonner";
 import { useValidatedForm } from "@/lib/hooks/useValidatedForm";
 
 import { type Action, cn } from "@/lib/utils";
-import { type TAddOptimistic } from "@/app/(app)/categories/useOptimisticCategories";
+import { type TAddOptimistic } from "@/app/(app)/admin/categories/useOptimisticCategories";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useBackPath } from "@/components/shared/BackButton";
 
-
-
-import { type Category, insertCategoryParams } from "@/lib/db/schema/categories";
+import {
+  type Category,
+  insertCategoryParams,
+} from "@/lib/db/schema/categories";
 import {
   createCategoryAction,
   deleteCategoryAction,
   updateCategoryAction,
 } from "@/lib/actions/categories";
 
-
 const CategoryForm = ({
-  
   category,
   openModal,
   closeModal,
@@ -33,7 +32,7 @@ const CategoryForm = ({
   postSuccess,
 }: {
   category?: Category | null;
-  
+
   openModal?: (category?: Category) => void;
   closeModal?: () => void;
   addOptimistic?: TAddOptimistic;
@@ -42,17 +41,16 @@ const CategoryForm = ({
   const { errors, hasErrors, setErrors, handleChange } =
     useValidatedForm<Category>(insertCategoryParams);
   const editing = !!category?.id;
-  
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [pending, startMutation] = useTransition();
 
   const router = useRouter();
   const backpath = useBackPath("categories");
 
-
   const onSuccess = (
     action: Action,
-    data?: { error: string; values: Category },
+    data?: { error: string; values: Category }
   ) => {
     const failed = Boolean(data?.error);
     if (failed) {
@@ -72,7 +70,9 @@ const CategoryForm = ({
     setErrors(null);
 
     const payload = Object.fromEntries(data.entries());
-    const categoryParsed = await insertCategoryParams.safeParseAsync({  ...payload });
+    const categoryParsed = await insertCategoryParams.safeParseAsync({
+      ...payload,
+    });
     if (!categoryParsed.success) {
       setErrors(categoryParsed?.error.flatten().fieldErrors);
       return;
@@ -81,16 +81,16 @@ const CategoryForm = ({
     closeModal && closeModal();
     const values = categoryParsed.data;
     const pendingCategory: Category = {
-      
       id: category?.id ?? "",
       ...values,
     };
     try {
       startMutation(async () => {
-        addOptimistic && addOptimistic({
-          data: pendingCategory,
-          action: editing ? "update" : "create",
-        });
+        addOptimistic &&
+          addOptimistic({
+            data: pendingCategory,
+            action: editing ? "update" : "create",
+          });
 
         const error = editing
           ? await updateCategoryAction({ ...values, id: category.id })
@@ -98,11 +98,11 @@ const CategoryForm = ({
 
         const errorFormatted = {
           error: error ?? "Error",
-          values: pendingCategory 
+          values: pendingCategory,
         };
         onSuccess(
           editing ? "update" : "create",
-          error ? errorFormatted : undefined,
+          error ? errorFormatted : undefined
         );
       });
     } catch (e) {
@@ -115,11 +115,11 @@ const CategoryForm = ({
   return (
     <form action={handleSubmit} onChange={handleChange} className={"space-y-8"}>
       {/* Schema fields start */}
-              <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.title ? "text-destructive" : "",
+            errors?.title ? "text-destructive" : ""
           )}
         >
           Title
@@ -136,11 +136,11 @@ const CategoryForm = ({
           <div className="h-6" />
         )}
       </div>
-        <div>
+      <div>
         <Label
           className={cn(
             "mb-2 inline-block",
-            errors?.description ? "text-destructive" : "",
+            errors?.description ? "text-destructive" : ""
           )}
         >
           Description
@@ -152,7 +152,9 @@ const CategoryForm = ({
           defaultValue={category?.description ?? ""}
         />
         {errors?.description ? (
-          <p className="text-xs text-destructive mt-2">{errors.description[0]}</p>
+          <p className="text-xs text-destructive mt-2">
+            {errors.description[0]}
+          </p>
         ) : (
           <div className="h-6" />
         )}
@@ -172,7 +174,8 @@ const CategoryForm = ({
             setIsDeleting(true);
             closeModal && closeModal();
             startMutation(async () => {
-              addOptimistic && addOptimistic({ action: "delete", data: category });
+              addOptimistic &&
+                addOptimistic({ action: "delete", data: category });
               const error = await deleteCategoryAction(category.id);
               setIsDeleting(false);
               const errorFormatted = {
