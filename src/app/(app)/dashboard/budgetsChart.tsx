@@ -54,9 +54,9 @@ const chartConfig = {
 export function BudgetChart() {
   return (
     <Card className="flex flex-col">
-      <CardHeader className="items-center pb-0">
-        <CardTitle>Radial Chart - Label</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+      <CardHeader>
+        <CardTitle>Budget Remaining</CardTitle>
+        <CardDescription>Current Month</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -90,7 +90,7 @@ export function BudgetChart() {
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Only x more days to go
         </div>
       </CardFooter>
     </Card>

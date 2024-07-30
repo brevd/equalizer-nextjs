@@ -6,6 +6,8 @@ import {
   billMateIdSchema,
   billMates,
 } from "@/lib/db/schema/billMates";
+import { BillGroupId, billGroupIdSchema } from "@/lib/db/schema/billGroups";
+import { billMatesToGroups } from "@/lib/db/schema/billMatesToGroups";
 
 export const getBillMates = async () => {
   const { session } = await getUserAuth();
@@ -38,4 +40,21 @@ export const getBillMateByUserId = async () => {
   if (row === undefined) return {};
   const b = row;
   return { billMate: b };
+};
+
+export const getBillMatesByGroupId = async (id: BillGroupId) => {
+  const { id: billGroupId } = billGroupIdSchema.parse({ id });
+  const rows = await db
+    .select({
+      id: billMates.id,
+      name: billMates.name,
+      userId: billMates.userId,
+      createdAt: billMates.createdAt,
+      updatedAt: billMates.updatedAt,
+    })
+    .from(billMates)
+    .leftJoin(billMatesToGroups, eq(billMates.id, billMatesToGroups.billMateId))
+    .where(eq(billMatesToGroups.billGroupId, billGroupId));
+  const b = rows;
+  return { billMates: b };
 };

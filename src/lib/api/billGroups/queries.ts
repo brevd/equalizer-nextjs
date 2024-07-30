@@ -45,9 +45,16 @@ export const getBillGroupByIdWithExpenses = async (id: BillGroupId) => {
 
 export const getBillGroupsByUserId = async () => {
   const { session } = await getUserAuth();
-  if (!session?.user.id) return {};
+  if (!session) throw Error();
+
   const rows = await db
-    .select({ billGroup: billGroups })
+    .select({
+      id: billGroups.id,
+      title: billGroups.title,
+      description: billGroups.description,
+      createdAt: billGroups.createdAt,
+      updatedAt: billGroups.updatedAt,
+    })
     .from(billGroups)
     .leftJoin(
       billMatesToGroups,
@@ -55,6 +62,13 @@ export const getBillGroupsByUserId = async () => {
     )
     .leftJoin(billMates, eq(billMates.id, billMatesToGroups.billMateId))
     .where(eq(billMates.userId, session.user.id));
+  const b = rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  }));
 
-  return { billGroups: rows };
+  return { billGroups: b };
 };

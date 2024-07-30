@@ -47,6 +47,7 @@ export default async function Budgets() {
                 key={b.id}
                 title={b.category?.title || "unknown"}
                 current={25}
+                // TODO: make dynamic
                 budget={b.amount}
               />
             ))}
